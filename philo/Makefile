@@ -10,7 +10,7 @@
 #                                                                              #
 # **************************************************************************** #
 
-NAME			= philos
+NAME			= philo
 
 CC				= clang
 CFLAGS			= -Wall -Wextra -Werror
@@ -32,7 +32,7 @@ clean:
 				rm -rf $(OBJS)
 
 fclean:			clean
-				rm -rf $(NAME)
+				rm $(NAME)
 
 re:				fclean all
 
