@@ -20,8 +20,8 @@ OBJS			= $(SRCS:%.c=%.o)
 HEADERS			= $(shell find $(SOURCEDIR) -name '*.h')
 INCLUDES		= $(dir $(HEADERS))
 
-$(OBJS)%.o:	$(SRCS)%.c $(HEADERS)
-				$(CC) $(CFLAGS) $(INCLUDES:./%/=-I%) -c $< -o $@
+$(OBJS):	$(SRCS) $(HEADERS)
+				$(CC) $(CFLAGS) $(INCLUDES:%=-I%) -c $< -o $@
 
 $(NAME):		$(OBJS)
 				$(CC) $(CFLAGS) -o $(NAME) $(OBJS)
@@ -35,5 +35,15 @@ fclean:			clean
 				rm $(NAME)
 
 re:				fclean all
+
+debug:
+				echo "\n"
+				echo "SRCS: $(SRCS)"
+				echo "\n"
+				echo "OBJS: $(OBJS)"
+				echo "\n"
+				echo "HEADERS: $(HEADERS)"
+				echo "\n"
+				echo "INCLUDES: $(INCLUDES)"
 
 .PHONY:			all clean fclean re
