@@ -1,0 +1,24 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"42header.username": "lsilva-q",
+		"42header.email": "lsilva-q@student.42sp.org.br",
+		"files.insertFinalNewline": true,
+		"editor.insertSpaces": false,
+		"editor.detectIndentation": false,
+		"files.trimFinalNewlines": false,
+		"files.trimTrailingWhitespace": true,
+		"editor.renderWhitespace": "all",
+		"editor.rulers": [
+			80
+		],
+		"terminal.integrated.defaultProfile.windows": "Ubuntu (WSL)",
+		"workbench.tree.renderIndentGuides": "always",
+		"editor.fontFamily": "'Cascadia Code', 'Courier New', monospace",
+		"editor.fontLigatures": false
+	}
+}

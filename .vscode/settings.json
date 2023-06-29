@@ -1,0 +1,11 @@
+{
+	"editor.renderWhitespace": "all",
+	"files.trimTrailingWhitespace": true,
+	"files.insertFinalNewline": true,
+	"editor.rulers": [
+		80
+	],
+	"editor.insertSpaces": false,
+	"editor.detectIndentation": false,
+	"C_Cpp.errorSquiggles": "disabled"
+}
