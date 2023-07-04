@@ -13,8 +13,23 @@
 #ifndef UTILS_H
 # define UTILS_H
 
-int	ft_isdigit(char c);
-int	ft_atoi(char *str);
-int	ft_atoll(char *str);
+# include <unistd.h>
+# include <sys/time.h>
+
+/**
+ * @brief Time in milliseconds.
+ **/
+typedef long long	t_mstime;
+
+/**
+ * @brief Time in microseconds.
+ **/
+typedef long long	t_utime;
+
+int					ft_isdigit(char c);
+int					ft_atoi(char *str);
+long long			ft_atoll(char *str);
+t_mstime			get_current_mstime(void);
+t_utime				mstime_to_utime(t_mstime mstime);
 
 #endif

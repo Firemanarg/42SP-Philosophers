@@ -17,9 +17,12 @@ int	main(int argc, char **argv)
 {
 	t_manager	manager;
 
+	printf("Simulation started: %lld\n", get_current_mstime());
 	if (init_manager(&manager, argc, argv))
 	{
 		printf("Error: invalid arguments.\n");
 		return (1);
 	}
+	terminate_manager(&manager);
+	pthread_mutex_destroy(&(manager.mutex));
 }

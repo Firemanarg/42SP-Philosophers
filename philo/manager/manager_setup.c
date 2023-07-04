@@ -14,30 +14,26 @@
 
 static void	init_forks(t_manager *manager);
 static void	init_philos(t_manager *manager);
-static void	link_philos(t_manager *manager);
-
-/* Parei aqui. Finalizei a parte de inicialização do manager, incluindo
- * a inicialização dos filósofos e dos garfos. Falta agora a parte de
- * inicialização das threads e criar a função de loop dos filósofos.
- * Falta implementar também as funções de teste para os filósofos, put_fork
- * e take_fork.
-*/
+static void	init_threads(t_manager *manager);
 
 int	init_manager(t_manager *manager, int argc, char **argv)
 {
 	if (argc < 5 || argc > 6)
 		return (1);
 	manager->philo_count = ft_atoi(argv[1]);
-	manager->fork_count = manager->philo_count - 1;
+	manager->fork_count = manager->philo_count;
 	if (manager->philo_count == 1)
 		manager->fork_count = 1;
 	if (manager->philo_count < 1)
 		return (1);
 	manager->philos = malloc(sizeof(t_philo) * manager->philo_count);
 	manager->forks = malloc(sizeof(t_fork) * manager->fork_count);
-	manager->time_to[DIE] = ft_atoll(argv[2]);
-	manager->time_to[EAT] = ft_atoll(argv[3]);
-	manager->time_to[SLEEP] = ft_atoll(argv[4]);
+	manager->time_to_die = ft_atoll(argv[2]);
+	manager->time_to_eat = ft_atoll(argv[3]);
+	manager->time_to_sleep = ft_atoll(argv[4]);
+	printf("Philosophers: %d\n", manager->philo_count);
+	printf("Forks: %d\n", manager->fork_count);
+	manager->start_time = get_current_mstime();
 	init_forks(manager);
 	init_philos(manager);
 	return (0);
@@ -51,7 +47,7 @@ static void	init_forks(t_manager *manager)
 	while (i < manager->fork_count)
 	{
 		manager->forks[i].index = i + 1;
-		manager->forks[i].state = AVAILABLE;
+		manager->forks[i].status = AVAILABLE;
 		i += 1;
 	}
 }
@@ -73,30 +69,36 @@ static void	init_philos(t_manager *manager)
 		left_fork_index = (i + fork_count - 1) % fork_count;
 		manager->philos[i].left_fork = manager->forks + left_fork_index;
 		manager->philos[i].right_fork = manager->forks + right_fork_index;
-		manager->philos[i].last_eat = 0;
-		manager->philos[i].last_sleep = 0;
-		manager->philos[i].last_think = 0;
-		manager->philos[i].state = THINKING;
+		manager->philos[i].time_to_die = manager->time_to_die;
+		manager->philos[i].time_to_eat = manager->time_to_eat;
+		manager->philos[i].time_to_sleep = manager->time_to_sleep;
+		manager->philos[i].last_fork_take = 0;
+		manager->philos[i].last_eat = get_current_mstime();
+		manager->philos[i].last_sleep = get_current_mstime();
+		manager->philos[i].status = NONE;
+		manager->philos[i].prev_status = NONE;
 		i += 1;
 	}
-	link_philos(manager);
+	init_threads(manager);
 }
 
-static void	link_philos(t_manager *manager)
+static void	init_threads(t_manager *manager)
 {
-	int	right_philo_index;
-	int	left_philo_index;
-	int	philo_count;
-	int	i;
+	t_philo		*philo;
+	pthread_t	*philo_thread;
+	int			i;
 
-	philo_count = manager->philo_count;
+	pthread_mutex_init(&(manager->mutex), NULL);
 	i = 0;
 	while (i < manager->philo_count)
 	{
-		right_philo_index = (i + 1) % philo_count;
-		left_philo_index = (i + philo_count - 1) % philo_count;
-		manager->philos[i].left_philo = manager->philos + left_philo_index;
-		manager->philos[i].right_philo = manager->philos + right_philo_index;
+		philo = manager->philos + i;
+		philo->start_time = manager->start_time;
+		philo_set_status(philo, THINKING);
+		manager->philos[i].mutex = &(manager->mutex);
+		philo_thread = &(philo->thread);
+		pthread_create(philo_thread, NULL, &philo_routine, (void *) philo);
+		// pthread_join(*philo_thread, NULL);
 		i += 1;
 	}
 }

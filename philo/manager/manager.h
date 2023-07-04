@@ -13,16 +13,12 @@
 #ifndef MANAGER_H
 # define MANAGER_H
 
+# include <stdlib.h>
 # include <stdio.h>
 # include <unistd.h>
 # include <pthread.h>
-# include <sys/time.h>
 # include "philo.h"
-
-/**
- * @brief Time in microseconds.
- **/
-typedef long long		t_utime;
+# include "utils.h"
 
 /**
  * @brief Struct to hold the manager data, used during execution.
@@ -38,17 +34,19 @@ typedef long long		t_utime;
  **/
 typedef struct s_manager
 {
-	int			philo_count;
-	int			fork_count;
-	t_philo		*philos;
-	t_fork		*forks;
-	t_mstime	time_to_die;
-	t_mstime	time_to_eat;
-	t_mstime	time_to_sleep;
-	int			eat_min_count;
+	pthread_mutex_t	mutex;
+	int				philo_count;
+	int				fork_count;
+	t_philo			*philos;
+	t_fork			*forks;
+	t_mstime		start_time;
+	t_mstime		time_to_die;
+	t_mstime		time_to_eat;
+	t_mstime		time_to_sleep;
+	int				eat_min_count;
 }	t_manager;
 
-t_mstime	get_current_mstime(void);
-t_utime		mstime_to_utime(t_mstime mstime);
+int		init_manager(t_manager *manager, int argc, char **argv);
+void	terminate_manager(t_manager *manager);
 
 #endif

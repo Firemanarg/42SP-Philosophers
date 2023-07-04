@@ -16,11 +16,7 @@
 # include <stdio.h>
 # include <unistd.h>
 # include <pthread.h>
-
-/**
- * @brief Time in milliseconds.
- **/
-typedef long long	t_mstime;
+# include "utils.h"
 
 /**
  * @brief Enum containing all possible status of a fork
@@ -39,8 +35,10 @@ typedef enum		e_fstatus
  */
 typedef struct		s_fork
 {
-	int			index;
-	t_fstatus	status;
+	int				index;
+	int				owner_index;
+	t_fstatus		status;
+	pthread_mutex_t	mutex;
 }	t_fork;
 
 /**
@@ -49,6 +47,7 @@ typedef struct		s_fork
  */
 typedef enum		e_pstatus
 {
+	NONE = -1,
 	THINKING,
 	EATING,
 	SLEEPING,
@@ -58,31 +57,49 @@ typedef enum		e_pstatus
 /**
  * @brief Struct to represent a philosopher
  *
- * @param id ID of the thread
+ * @param thread The thread of the philosopher
  * @param index Index of the philosopher at the table
+ * @param mutex Pointer to the mutex
  * @param eat_count How many times philosopher ate
  * @param status Current status of the philosopher
- * @param left_philo Pointer to the left philosopher
- * @param right_philo Pointer to the right philosopher
+ * @param prev_status Previous status of the philosopher
  * @param left_fork Pointer to the left fork
  * @param right_fork Pointer to the right fork
- * @param last_eat Last time the philosopher ate
- * @param last_sleep Last time the philosopher slept
- * @param last_think Last time the philosopher thought
+ * @param time_to_die The time (in ms) a philosopher can live without eating
+ * @param time_to_eat The time (in ms) a philosopher take to eat
+ * @param time_to_sleep The time (in ms) a philosopher take to sleep
+ * @param last_fork_take The time (in ms) the philosopher took the last fork
+ * @param last_eat The time (in ms) the philosopher ate the last time
+ * @param last_sleep The time (in ms) the philosopher slept the last time
  */
 typedef struct		s_philo
 {
-	pthread_t		id;
+	pthread_t		thread;
 	int				index;
+	pthread_mutex_t	*mutex;
 	int				eat_count;
 	t_pstatus		status;
-	struct	s_philo *left_philo;
-	struct	s_philo *right_philo;
+	t_pstatus		prev_status;
 	t_fork			*left_fork;
 	t_fork			*right_fork;
+	t_mstime		start_time;
+	t_mstime		time_to_die;
+	t_mstime		time_to_eat;
+	t_mstime		time_to_sleep;
+	t_mstime		last_fork_take;
 	t_mstime		last_eat;
 	t_mstime		last_sleep;
-	t_mstime		last_think;
 }	t_philo;
 
+void				*philo_routine(void *philo_ptr);
+void				take_forks(t_philo *philo);
+void				put_forks(t_philo *philo);
+int					philo_can_eat(t_philo *philo);
+int					philo_starved(t_philo *philo);
+void				philo_set_status(t_philo *philo, int status);
+int					philo_changed_status(t_philo *philo);
+void				philo_print_status(t_philo *philo);
+void				philo_print_message(t_philo *philo, char *message);
+
 #endif
+
