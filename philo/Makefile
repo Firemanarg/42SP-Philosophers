@@ -18,6 +18,8 @@ CFLAGS				= -Wall -Wextra -Werror -pthread
 SRCS_DIR			= philo
 SRCS				= manager/manager_setup.c \
 					  manager/manager_terminate.c \
+					  manager/monitor.c \
+					  manager/philo_init.c \
 					  philo_/philo_routine.c \
 					  philo_/philo_utils.c \
 					  philo_/forks.c \
