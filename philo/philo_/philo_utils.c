@@ -93,6 +93,6 @@ void	philo_print_message(t_philo *philo, char *message)
 
 	pthread_mutex_lock(philo->mutex);
 	time = get_current_mstime() - philo->start_time;
-	printf("%lld %d %s\n", time, philo->index, message);
+	printf("%12lld %d %s\n", time, philo->index, message);
 	pthread_mutex_unlock(philo->mutex);
 }
