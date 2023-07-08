@@ -19,6 +19,10 @@
 		"terminal.integrated.defaultProfile.windows": "Ubuntu (WSL)",
 		"workbench.tree.renderIndentGuides": "always",
 		"editor.fontFamily": "'Cascadia Code', 'Courier New', monospace",
-		"editor.fontLigatures": false
+		"editor.fontLigatures": false,
+		"files.associations": {
+			"philo.h": "c",
+			"manager.h": "c"
+		}
 	}
 }
