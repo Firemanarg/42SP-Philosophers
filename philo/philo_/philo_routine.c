@@ -28,7 +28,7 @@ void	*philo_routine(void *philo_ptr)
 	t_philo	*philo;
 
 	philo = (t_philo *) philo_ptr;
-	while (philo->status != DEAD)
+	while (philo->status != DEAD && philo->is_running)
 	{
 		if (philo_starved(philo))
 			philo_state_dead(philo);
@@ -43,13 +43,16 @@ void	*philo_routine(void *philo_ptr)
 			philo_print_status(philo);
 			philo_set_status(philo, philo->status);
 		}
-		usleep(100);
+		usleep(10);
 	}
 	return (NULL);
 }
 
 static void	philo_state_dead(t_philo *philo)
 {
+	pthread_mutex_lock(philo->mutex);
+	*(philo->manager_death_flag) = 1;
+	pthread_mutex_unlock(philo->mutex);
 	philo_set_status(philo, DEAD);
 	put_forks(philo);
 }
@@ -86,6 +89,12 @@ static void	philo_state_eating(t_philo *philo)
 		put_forks(philo);
 		philo->last_eat = get_current_mstime();
 		philo->eat_count += 1;
+		if (philo->eat_count == philo->eat_min_count)
+		{
+			pthread_mutex_lock(philo->mutex);
+			philo->manager_eat_done_count += 1;
+			pthread_mutex_unlock(philo->mutex);
+		}
 		philo_set_status(philo, SLEEPING);
 	}
 }

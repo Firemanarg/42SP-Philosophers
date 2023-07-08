@@ -23,9 +23,11 @@ void	take_forks(t_philo *philo)
 	pthread_mutex_lock(&(philo->left_fork->mutex));
 	philo_print_message(philo, "has taken a fork");
 	philo->left_fork->status = UNAVAILABLE;
+	philo->is_holding_left_fork = 1;
 	pthread_mutex_lock(&(philo->right_fork->mutex));
 	philo_print_message(philo, "has taken a fork");
 	philo->right_fork->status = UNAVAILABLE;
+	philo->is_holding_right_fork = 1;
 	philo->last_fork_take = get_current_mstime();
 }
 
@@ -37,8 +39,16 @@ void	take_forks(t_philo *philo)
 */
 void	put_forks(t_philo *philo)
 {
-	pthread_mutex_unlock(&(philo->left_fork->mutex));
-	pthread_mutex_unlock(&(philo->right_fork->mutex));
-	philo->left_fork->status = AVAILABLE;
-	philo->right_fork->status = AVAILABLE;
+	if (philo->is_holding_left_fork)
+	{
+		pthread_mutex_unlock(&(philo->left_fork->mutex));
+		philo->left_fork->status = AVAILABLE;
+		philo->is_holding_left_fork = 0;
+	}
+	if (philo->is_holding_right_fork)
+	{
+		pthread_mutex_unlock(&(philo->right_fork->mutex));
+		philo->right_fork->status = AVAILABLE;
+		philo->is_holding_right_fork = 0;
+	}
 }

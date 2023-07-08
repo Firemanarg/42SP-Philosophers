@@ -36,7 +36,6 @@ typedef enum		e_fstatus
 typedef struct		s_fork
 {
 	int				index;
-	int				owner_index;
 	t_fstatus		status;
 	pthread_mutex_t	mutex;
 }	t_fork;
@@ -57,31 +56,46 @@ typedef enum		e_pstatus
 /**
  * @brief Struct to represent a philosopher
  *
+ * @param is_running Flag to indicate if the thread is running
  * @param thread The thread of the philosopher
  * @param index Index of the philosopher at the table
  * @param mutex Pointer to the mutex
+ * @param manager_eat_done_count Pointer to the manager eat done count
+ * @param manager_death_flag Pointer to the manager death flag
  * @param eat_count How many times philosopher ate
+ * @param eat_min_count The minimum number of times a philosopher must eat
  * @param status Current status of the philosopher
  * @param prev_status Previous status of the philosopher
  * @param left_fork Pointer to the left fork
  * @param right_fork Pointer to the right fork
+ * @param is_holding_left_fork Flag to indicate if the philosopher
+ * is holding the left fork
+ * @param is_holding_right_fork Flag to indicate if the philosopher
+ * is holding the right fork
  * @param time_to_die The time (in ms) a philosopher can live without eating
  * @param time_to_eat The time (in ms) a philosopher take to eat
  * @param time_to_sleep The time (in ms) a philosopher take to sleep
  * @param last_fork_take The time (in ms) the philosopher took the last fork
  * @param last_eat The time (in ms) the philosopher ate the last time
  * @param last_sleep The time (in ms) the philosopher slept the last time
+ * @
  */
 typedef struct		s_philo
 {
+	int				is_running;
 	pthread_t		thread;
 	int				index;
 	pthread_mutex_t	*mutex;
+	int				*manager_eat_done_count;
+	int				*manager_death_flag;
 	int				eat_count;
+	int				eat_min_count;
 	t_pstatus		status;
 	t_pstatus		prev_status;
 	t_fork			*left_fork;
 	t_fork			*right_fork;
+	int				is_holding_left_fork;
+	int				is_holding_right_fork;
 	t_mstime		start_time;
 	t_mstime		time_to_die;
 	t_mstime		time_to_eat;
