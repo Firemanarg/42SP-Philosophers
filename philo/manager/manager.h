@@ -34,6 +34,7 @@
  **/
 typedef struct s_manager
 {
+	pthread_t		monitor;
 	pthread_mutex_t	mutex;
 	int				philo_count;
 	int				fork_count;
@@ -44,9 +45,13 @@ typedef struct s_manager
 	t_mstime		time_to_eat;
 	t_mstime		time_to_sleep;
 	int				eat_min_count;
+	int				eat_done_count;
+	int				death_flag;
 }	t_manager;
 
 int		init_manager(t_manager *manager, int argc, char **argv);
 void	terminate_manager(t_manager *manager);
+void	*monitor_routine(void *manager_ptr);
+void	init_philo(t_philo *philo, t_manager *manager, int index);
 
 #endif
