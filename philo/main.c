@@ -23,6 +23,4 @@ int	main(int argc, char **argv)
 		printf("Error: invalid arguments.\n");
 		return (1);
 	}
-	terminate_manager(&manager);
-	pthread_mutex_destroy(&(manager.mutex));
 }
