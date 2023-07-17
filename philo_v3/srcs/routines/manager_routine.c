@@ -17,12 +17,10 @@ void	*manager_routine(void *arg)
 	t_manager	*manager;
 	int			i;
 	int			meals_completed;
-	int			end_loop;
 
 	manager = (t_manager *)arg;
-	end_loop = FALSE;
 	manager_routine_setup(manager);
-	while (!end_loop)
+	while (TRUE)
 	{
 		pthread_mutex_lock(&manager->continue_check_mutex);
 		manager->eat_done_count = 0;
@@ -41,12 +39,17 @@ void	*manager_routine(void *arg)
 		meals_completed = (manager->eat_done_count == manager->philos_count);
 		if (manager->someone_died || meals_completed)
 		{
+			pthread_mutex_lock(&manager->sync_mutex);
 			manager->can_continue = 0;
-			end_loop = TRUE;
+			pthread_mutex_unlock(&manager->continue_check_mutex);
+			break ;
 		}
 		pthread_mutex_unlock(&manager->continue_check_mutex);
 		usleep(100);
 	}
+	join_threads(manager);
+	pthread_mutex_unlock(&manager->sync_mutex);
+	return (NULL);
 }
 
 static void	manager_routine_setup(t_manager *manager)
@@ -62,4 +65,16 @@ static void	manager_routine_setup(t_manager *manager)
 		i += 1;
 	}
 	pthread_mutex_unlock(&manager->sync_mutex);
+}
+
+static void	join_threads(t_manager *manager)
+{
+	int	i;
+
+	i = 0;
+	while (i < manager->philos_count)
+	{
+		pthread_join(manager->philos[i].thread, NULL);
+		i += 1;
+	}
 }

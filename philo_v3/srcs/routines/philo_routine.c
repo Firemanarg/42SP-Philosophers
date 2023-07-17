@@ -41,7 +41,8 @@ void	*philo_routine(void *arg)
 		else if (state == SLEEPING)
 			philo_sleep(philo);
 	}
-	pthread_join(philo->thread, NULL);	// Checar se isso é válido
+	pthread_mutex_lock(&manager->sync_mutex);
+	pthread_mutex_unlock(&manager->sync_mutex);
 	return (NULL);
 }
 
