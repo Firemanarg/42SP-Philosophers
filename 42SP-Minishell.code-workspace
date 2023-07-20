@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "42SP-Philosophers"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"stdlib.h": "c",
+			"philo.h": "c"
+		},
+		"terminal.integrated.defaultProfile.windows": "Ubuntu (WSL)",
+		"42header.email": "lsilva-q@student.42sp.org.br",
+		"42header.username": "lsilva-q"
+	}
+}
