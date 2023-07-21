@@ -12,26 +12,28 @@
 
 #include "philo.h"
 
-void	init_philo(t_philo *philo, int id, t_args *args)
+void	init_philo(t_philo *philo, int id, t_philo_king *king)
 {
 	int	left_fork_index;
 	int	right_fork_index;
 	int	index;
 
-	philo->args = args;
-	philo->id = id;
-	philo->last_meal = curr_time();
-	right_fork_index = 0;
-	left_fork_index = 0;
-	if (args->philos_count > 1)
+	index = 0;
+	if (king->args->philos_count > 1)
 	{
-		index = id - 1;
-		right_fork_index = min(index, (index + 1) % args->philos_count);
-		left_fork_index = max(index, (index + 1) % args->philos_count);
+		index = (id) % king->args->philos_count;
+		if (id - 1 < index)
+			right_fork_index = index;
+		if (id - 1 > index)
+			left_fork_index = index;
 	}
-	philo->left_fork = args->forks + left_fork_index;
-	philo->right_fork = args->forks + right_fork_index;
-	philo->meals = 0;
+	right_fork_index = index;
+	left_fork_index = index;
+	*philo = (t_philo){.id = id, .args = king->args, .last_meal = curr_time(),
+		.left_fork = king->forks + left_fork_index,
+		.right_fork = king->forks + right_fork_index,
+		.can_run = TRUE, .is_alive = TRUE, .has_ate_enough = FALSE};
+	pthread_mutex_init(&philo->mutex, NULL);
 }
 
 void	init_philo_king(t_philo_king *king, t_args *args)
@@ -45,10 +47,23 @@ void	init_philo_king(t_philo_king *king, t_args *args)
 	i = 0;
 	while (i < args->philos_count)
 	{
-		pthread_mutex_init(args->forks + i, NULL);
-		init_philo(&args->philos[i], i + 1, args);
+		pthread_mutex_init(king->forks + i, NULL);
+		init_philo(&king->philos[i], i + 1, king);
 		i += 1;
 	}
+}
+
+void	*stop_all_philos(t_philo_king *king)
+{
+	int	i;
+
+	i = 0;
+	while (i < king->args->philos_count)
+	{
+		safeset_int(&king->philos[i].can_run, STOPPED, &king->philos[i].mutex);
+		i += 1;
+	}
+	return (NULL);
 }
 
 void	print(t_philo *philo, char *msg)
@@ -85,37 +100,3 @@ long long	ft_atoll(const char *str)
 	}
 	return (result * sign);
 }
-
-int	safeget_int(int *var, pthread_mutex_t *mutex)
-{
-	int	result;
-
-	pthread_mutex_lock(mutex);
-	result = *var;
-	pthread_mutex_unlock(mutex);
-	return (result);
-}
-
-void	safeset_int(int *var, int value, pthread_mutex_t *mutex)
-{
-	pthread_mutex_lock(mutex);
-	*var = value;
-	pthread_mutex_unlock(mutex);
-}
-
-// int	can_continue_simulation(t_philo *philo)
-// {
-// 	int	result;
-
-// 	pthread_mutex_lock(&philo->args->sync_mutex);
-// 	result = philo->args->can_run;
-// 	pthread_mutex_unlock(&philo->args->sync_mutex);
-// 	return (result);
-// }
-
-// void	set_simulation_status(t_philo *philo, int status)
-// {
-// 	pthread_mutex_lock(&philo->args->sync_mutex);
-// 	philo->args->can_run = status;
-// 	pthread_mutex_unlock(&philo->args->sync_mutex);
-// }

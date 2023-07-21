@@ -13,13 +13,13 @@
 #include "philo.h"
 
 static void	init_args(t_args *args, int argc, char **argv);
-static void	init_philos(t_args *args);
-static void	start_simulation(t_args *args);
-static void	clean_all(t_args *args);
+static void	start_simulation(t_philo_king *king);
+static void	clean_all(t_philo_king *king);
 
 int	main(int argc, char **argv)
 {
-	t_args	args;
+	t_philo_king	king;
+	t_args			args;
 
 	if (argc < 5 || argc > 6)
 	{
@@ -27,15 +27,13 @@ int	main(int argc, char **argv)
 		return (1);
 	}
 	init_args(&args, argc, argv);
-	init_philos(&args);
-	start_simulation(&args);
-	clean_all(&args);
+	init_philo_king(&king, &args);
+	start_simulation(&king);
+	clean_all(&king);
 }
 
 static void	init_args(t_args *args, int argc, char **argv)
 {
-	int	i;
-
 	args->philos_count = (int) ft_atoll(argv[1]);
 	args->time_to_die = ft_atoll(argv[2]);
 	args->time_to_eat = ft_atoll(argv[3]);
@@ -46,56 +44,36 @@ static void	init_args(t_args *args, int argc, char **argv)
 		args->min_meals = -1;
 	pthread_mutex_init(&args->out_mutex, NULL);
 	pthread_mutex_init(&args->sync_mutex, NULL);
-	args->completed_meals_count = 0;
-	args->can_run = 1;
-	args->philos = malloc(sizeof(t_philo) * args->philos_count);
-	args->forks = malloc(sizeof(pthread_mutex_t) * args->philos_count);
-	i = 0;
-	while (i < args->philos_count)
-	{
-		pthread_mutex_init(args->forks + i, NULL);
-		i += 1;
-	}
 }
 
-static void	init_philos(t_args *args)
+static void	start_simulation(t_philo_king *king)
 {
 	int	i;
 
 	i = 0;
-	while (i < args->philos_count)
+	while (i < king->args->philos_count)
 	{
-		init_philo(&args->philos[i], i + 1, args);
+		pthread_create(&king->philos[i].thread, NULL,
+						philo_routine, &king->philos[i]);
 		i += 1;
 	}
+	pthread_create(&king->thread, NULL, philo_king_routine, king);
 }
 
-static void	start_simulation(t_args *args)
+static void	clean_all(t_philo_king *king)
 {
 	int	i;
 
 	i = 0;
-	while (i < args->philos_count)
+	while (i < king->args->philos_count)
 	{
-		pthread_create(&args->philos[i].thread, NULL,
-						philo_routine, &args->philos[i]);
+		pthread_join(king->philos[i].thread, NULL);
+		pthread_mutex_destroy(king->forks + i);
 		i += 1;
 	}
-}
-
-static void	clean_all(t_args *args)
-{
-	int	i;
-
-	i = 0;
-	while (i < args->philos_count)
-	{
-		pthread_join(args->philos[i].thread, NULL);
-		pthread_mutex_destroy(args->forks + i);
-		i += 1;
-	}
-	pthread_mutex_destroy(&args->out_mutex);
-	pthread_mutex_destroy(&args->sync_mutex);
-	free(args->philos);
-	free(args->forks);
+	pthread_join(king->thread, NULL);
+	pthread_mutex_destroy(&king->args->out_mutex);
+	pthread_mutex_destroy(&king->args->sync_mutex);
+	free(king->philos);
+	free(king->forks);
 }

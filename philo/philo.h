@@ -21,6 +21,8 @@
 
 # define RUNNING 1
 # define STOPPED 0
+# define TRUE 1
+# define FALSE 0
 
 /**
  * Steps of simulation:
@@ -52,14 +54,17 @@ typedef struct s_args
 	t_mstime		time_to_eat;
 	t_mstime		time_to_sleep;
 	int				min_meals;
-	pthread_mutex_t	*out_mutex;
-	pthread_mutex_t	*sync_mutex;
+	pthread_mutex_t	out_mutex;
+	pthread_mutex_t	sync_mutex;
 }	t_args;
 
 typedef struct s_philo
 {
 	int				id;
 	pthread_t		thread;
+	pthread_mutex_t	mutex;
+	int				is_alive;
+	int				has_ate_enough;
 	int				can_run;
 	t_mstime		last_meal;
 	pthread_mutex_t	*left_fork;
@@ -72,6 +77,7 @@ typedef struct s_philo_king
 {
 	pthread_t		thread;
 	int				completed_meals_count;
+	int				is_any_philo_dead;
 	t_args			*args;
 	t_philo			*philos;
 	pthread_mutex_t	*forks;
@@ -79,25 +85,22 @@ typedef struct s_philo_king
 
 // simulation.c
 void		*philo_routine(void *arg);
-int			action_timed_loop(t_philo *philo, t_mstime max_time);
+void		*philo_king_routine(void *arg);
 void		philo_think(t_philo *philo);
 void		philo_eat(t_philo *philo);
 void		philo_sleep(t_philo *philo);
 
 // utils_1.c
-void		init_philo(t_philo *philo, int id, t_args *args);
+void		init_philo(t_philo *philo, int id, t_philo_king *king);
 void		init_philo_king(t_philo_king *king, t_args *args);
+void		*stop_all_philos(t_philo_king *king);
 void		print(t_philo *philo, char *msg);
 long long	ft_atoll(const char *str);
-int			safeget_int(int *var, pthread_mutex_t *mutex);
-void		safeset_int(int *var, int value, pthread_mutex_t *mutex);
-// int			can_continue_simulation(t_philo *philo);
-// void		set_simulation_status(t_philo *philo, int status);
 
 // utils_2.c
 t_mstime	curr_time(void);
-void		philo_min_meals_checker(t_philo *philo);
-int			min(int a, int b);
-int			max(int a, int b);
+int			action_timed_loop(t_philo *philo, t_mstime max_time);
+int			safeget_int(int *var, pthread_mutex_t *mutex);
+void		safeset_int(int *var, int value, pthread_mutex_t *mutex);
 
 #endif

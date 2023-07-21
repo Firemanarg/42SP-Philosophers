@@ -26,31 +26,37 @@ t_mstime	curr_time(void)
 	return (curr_time);
 }
 
-void	philo_min_meals_checker(t_philo *philo)
+int	action_timed_loop(t_philo *philo, t_mstime max_time)
 {
-	int	min_meals;
+	t_mstime	time_since_last_meal;
+	t_mstime	start_time;
 
-	min_meals = philo->args->min_meals;
-	if ((min_meals != -1) && (philo->meals == min_meals))
+	start_time = curr_time();
+	while (curr_time() - start_time < max_time)
 	{
-		pthread_mutex_lock(&philo->args->sync_mutex);
-		philo->args->completed_meals_count += 1;
-		if (philo->args->completed_meals_count == philo->args->philos_count)
-			philo->args->can_run = STOPPED;
-		pthread_mutex_unlock(&philo->args->sync_mutex);
+		time_since_last_meal = curr_time() - philo->last_meal;
+		if (time_since_last_meal >= philo->args->time_to_die)
+			return (1);
+		if (!safeget_int(&philo->can_run, &philo->mutex))
+			return (0);
+		usleep(1000);
 	}
+	return (0);
 }
 
-int	min(int a, int b)
+int	safeget_int(int *var, pthread_mutex_t *mutex)
 {
-	if (a < b)
-		return (a);
-	return (b);
+	int	result;
+
+	pthread_mutex_lock(mutex);
+	result = *var;
+	pthread_mutex_unlock(mutex);
+	return (result);
 }
 
-int	max(int a, int b)
+void	safeset_int(int *var, int value, pthread_mutex_t *mutex)
 {
-	if (a > b)
-		return (a);
-	return (b);
+	pthread_mutex_lock(mutex);
+	*var = value;
+	pthread_mutex_unlock(mutex);
 }

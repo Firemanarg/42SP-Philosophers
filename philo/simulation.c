@@ -17,6 +17,7 @@ void	*philo_routine(void *arg)
 	t_philo	*philo;
 
 	philo = (t_philo *) arg;
+	print(philo, "started");
 	if (philo->id % 2 == 0)
 		usleep(1500);
 	if (philo->args->philos_count == 1)
@@ -24,46 +25,54 @@ void	*philo_routine(void *arg)
 		print(philo, "has taken a fork");
 		usleep(philo->args->time_to_die * 1000);
 		print(philo, "died");
-		set_simulation_status(philo, STOPPED);
+		safeset_int(&philo->is_alive, FALSE, &philo->mutex);
 	}
-	while (can_continue_simulation(philo))
+	while (safeget_int(&philo->can_run, &philo->mutex))
 	{
-		philo_eat(philo);
-		philo_sleep(philo);
-		philo_think(philo);
-		philo_min_meals_checker(philo);
+		if (safeget_int(&philo->is_alive, &philo->mutex))
+		{
+			philo_eat(philo);
+			philo_sleep(philo);
+			philo_think(philo);
+		}
 		usleep(100);
 	}
 	return (NULL);
 }
 
-int	action_timed_loop(t_philo *philo, t_mstime max_time)
+void	*philo_king_routine(void *arg)
 {
-	t_mstime	time_since_last_meal;
-	t_mstime	start_time;
+	t_philo_king	*king;
+	t_philo			*philo;
+	int				i;
 
-	start_time = curr_time();
-	while (curr_time() - start_time < max_time)
+	printf("philo_king_routine\n");
+	king = (t_philo_king *) arg;
+	while (TRUE)
 	{
-		time_since_last_meal = curr_time() - philo->last_meal;
-		if (time_since_last_meal >= philo->args->time_to_die)
-			return (1);
-		if (!can_continue_simulation(philo))
-			return (0);
-		usleep(1000);
+		king->is_any_philo_dead = FALSE;
+		king->completed_meals_count = 0;
+		i = 0;
+		while (i < king->args->philos_count)
+		{
+			philo = king->philos + i;
+			if (!philo->is_alive)
+				king->is_any_philo_dead = TRUE;
+			if (philo->has_ate_enough)
+				king->completed_meals_count += 1;
+		}
+		if (king->is_any_philo_dead
+			|| king->completed_meals_count == king->args->philos_count)
+			return (stop_all_philos(king));
+		usleep(100);
 	}
-	return (0);
-}
-
-void	philo_think(t_philo *philo)
-{
-	if (can_continue_simulation(philo))
-		print(philo, "is thinking");
 }
 
 void	philo_eat(t_philo *philo)
 {
-	if (can_continue_simulation(philo))
+	int	min_meals;
+
+	if (safeget_int(&philo->can_run, &philo->mutex))
 	{
 		pthread_mutex_lock(philo->left_fork);
 		pthread_mutex_lock(philo->right_fork);
@@ -73,24 +82,33 @@ void	philo_eat(t_philo *philo)
 		if (action_timed_loop(philo, philo->args->time_to_eat))
 		{
 			print(philo, "died");
-			set_simulation_status(philo, STOPPED);
+			safeset_int(&philo->is_alive, FALSE, &philo->mutex);
 		}
 		pthread_mutex_unlock(philo->left_fork);
 		pthread_mutex_unlock(philo->right_fork);
 		philo->last_meal = curr_time();
 		philo->meals += 1;
+		min_meals = philo->args->min_meals;
+		if ((min_meals != -1) && (philo->meals == min_meals))
+			philo->has_ate_enough = TRUE;
 	}
 }
 
 void	philo_sleep(t_philo *philo)
 {
-	if (can_continue_simulation(philo))
+	if (safeget_int(&philo->can_run, &philo->mutex))
 	{
 		print(philo, "is sleeping");
 		if (action_timed_loop(philo, philo->args->time_to_sleep))
 		{
 			print(philo, "died");
-			set_simulation_status(philo, STOPPED);
+			safeset_int(&philo->is_alive, FALSE, &philo->mutex);
 		}
 	}
+}
+
+void	philo_think(t_philo *philo)
+{
+	if (safeget_int(&philo->can_run, &philo->mutex))
+		print(philo, "is thinking");
 }
