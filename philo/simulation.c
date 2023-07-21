@@ -17,9 +17,6 @@ void	*philo_routine(void *arg)
 	t_philo	*philo;
 
 	philo = (t_philo *) arg;
-	print(philo, "started");
-	if (philo->id % 2 == 0)
-		usleep(1500);
 	if (philo->args->philos_count == 1)
 	{
 		print(philo, "has taken a fork");

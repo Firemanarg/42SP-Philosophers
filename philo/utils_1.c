@@ -18,17 +18,18 @@ void	init_philo(t_philo *philo, int id, t_philo_king *king)
 	int	right_fork_index;
 	int	index;
 
-	index = 0;
+	right_fork_index = 0;
+	left_fork_index = 0;
 	if (king->args->philos_count > 1)
 	{
 		index = (id) % king->args->philos_count;
+		right_fork_index = id - 1;
 		if (id - 1 < index)
 			right_fork_index = index;
+		left_fork_index = id - 1;
 		if (id - 1 > index)
 			left_fork_index = index;
 	}
-	right_fork_index = index;
-	left_fork_index = index;
 	*philo = (t_philo){.id = id, .args = king->args, .last_meal = curr_time(),
 		.left_fork = king->forks + left_fork_index,
 		.right_fork = king->forks + right_fork_index,

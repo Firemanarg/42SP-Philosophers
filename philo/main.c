@@ -54,7 +54,7 @@ static void	start_simulation(t_philo_king *king)
 	while (i < king->args->philos_count)
 	{
 		pthread_create(&king->philos[i].thread, NULL,
-						philo_routine, &king->philos[i]);
+			philo_routine, &king->philos[i]);
 		i += 1;
 	}
 	pthread_create(&king->thread, NULL, philo_king_routine, king);
