@@ -12,6 +12,13 @@
 
 #include "philo.h"
 
+/**
+ * @brief Routine of the philosopher, to be executed by the thread.
+ *
+ * @param arg Pointer to the philosopher.
+ *
+ * @return void* NULL.
+*/
 void	*philo_routine(void *arg)
 {
 	t_philo	*philo;
@@ -40,6 +47,13 @@ void	*philo_routine(void *arg)
 	return (NULL);
 }
 
+/**
+ * @brief Routine of the Philosopher King, to be executed by the thread.
+ *
+ * @param arg Pointer to the Philosopher King.
+ *
+ * @return void* NULL.
+*/
 void	*philo_king_routine(void *arg)
 {
 	t_philo_king	*king;
@@ -69,6 +83,13 @@ void	*philo_king_routine(void *arg)
 	return (NULL);
 }
 
+/**
+ * @brief Action of the philosopher during eating.
+ *
+ * @param philo Pointer to the philosopher.
+ *
+ * @return int 1 if the philosopher is ate successfully, 0 otherwise.
+*/
 int	philo_eat(t_philo *philo)
 {
 	int	philo_died;
@@ -97,6 +118,13 @@ int	philo_eat(t_philo *philo)
 	return (0);
 }
 
+/**
+ * @brief Action of the philosopher during sleeping.
+ *
+ * @param philo Pointer to the philosopher.
+ *
+ * @return int 1 if the philosopher is slept successfully, 0 otherwise.
+*/
 int	philo_sleep(t_philo *philo)
 {
 	if (!safeget_int(&philo->can_run, &philo->mutex) || !is_alive(philo, TRUE))
@@ -111,6 +139,13 @@ int	philo_sleep(t_philo *philo)
 	return (1);
 }
 
+/**
+ * @brief Action of the philosopher during thinking.
+ *
+ * @param philo Pointer to the philosopher.
+ *
+ * @return int 1 if the philosopher is thought successfully, 0 otherwise.
+*/
 int	philo_think(t_philo *philo)
 {
 	if (!safeget_int(&philo->can_run, &philo->mutex) || !is_alive(philo, TRUE))

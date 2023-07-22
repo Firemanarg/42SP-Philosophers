@@ -12,6 +12,13 @@
 
 #include "philo.h"
 
+/**
+ * @brief Initializes a philosopher.
+ *
+ * @param philo Pointer to the philosopher to be initialized.
+ * @param id ID of the philosopher.
+ * @param king Pointer to the king.
+*/
 void	init_philo(t_philo *philo, int id, t_philo_king *king)
 {
 	int	left_fork_index;
@@ -27,6 +34,12 @@ void	init_philo(t_philo *philo, int id, t_philo_king *king)
 	pthread_mutex_init(&philo->mutex, NULL);
 }
 
+/**
+ * @brief Initializes the Philo King.
+ *
+ * @param king Pointer to the Philo King to be initialized.
+ * @param args Pointer to the arguments.
+*/
 void	init_philo_king(t_philo_king *king, t_args *args)
 {
 	int	i;
@@ -44,6 +57,13 @@ void	init_philo_king(t_philo_king *king, t_args *args)
 	}
 }
 
+/**
+ * @brief Stops all philosophers (thread-safe).
+ *
+ * @param king Pointer to the Philo King.
+ *
+ * @return NULL.
+*/
 void	*stop_all_philos(t_philo_king *king)
 {
 	int	i;
@@ -57,6 +77,12 @@ void	*stop_all_philos(t_philo_king *king)
 	return (NULL);
 }
 
+/**
+ * @brief Prints a message (thread-safe).
+ *
+ * @param philo Pointer to the philosopher.
+ * @param msg Message to be printed.
+*/
 void	print(t_philo *philo, char *msg)
 {
 	t_mstime	time;
@@ -69,6 +95,13 @@ void	print(t_philo *philo, char *msg)
 	pthread_mutex_unlock(&philo->args->out_mutex);
 }
 
+/**
+ * @brief Converts a string to a long long integer.
+ *
+ * @param str String to be converted.
+ *
+ * @return The converted value.
+*/
 long long	ft_atoll(const char *str)
 {
 	long long	result;

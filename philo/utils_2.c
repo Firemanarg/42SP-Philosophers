@@ -12,7 +12,12 @@
 
 #include "philo.h"
 
-t_mstime	curr_time()
+/**
+ * @brief Returns the current time in milliseconds.
+ *
+ * @return t_mstime Current time in milliseconds.
+*/
+t_mstime	curr_time(void)
 {
 	static t_mstime	start_time;
 	t_mstime		curr_time;
@@ -26,6 +31,14 @@ t_mstime	curr_time()
 	return (curr_time);
 }
 
+/**
+ * @brief Returns the current time in milliseconds.
+ *
+ * @param philo Pointer to the philosopher.
+ * @param max_time Maximum time in milliseconds.
+ *
+ * @return int 1 if the philosopher is alive, 0 otherwise.
+*/
 int	action_timed_loop(t_philo *philo, t_mstime max_time)
 {
 	t_mstime	start_time;
@@ -44,6 +57,14 @@ int	action_timed_loop(t_philo *philo, t_mstime max_time)
 	return (0);
 }
 
+/**
+ * @brief Safely gets the value of an integer (thread-safe).
+ *
+ * @param var Pointer to the variable.
+ * @param mutex Mutex used to lock the variable.
+ *
+ * @return int Value of the variable.
+*/
 int	safeget_int(int *var, pthread_mutex_t *mutex)
 {
 	int	result;
@@ -54,6 +75,13 @@ int	safeget_int(int *var, pthread_mutex_t *mutex)
 	return (result);
 }
 
+/**
+ * @brief Safely sets the value of an integer (thread-safe).
+ *
+ * @param var Pointer to the variable.
+ * @param value Value to be set.
+ * @param mutex Mutex used to lock the variable.
+*/
 void	safeset_int(int *var, int value, pthread_mutex_t *mutex)
 {
 	pthread_mutex_lock(mutex);
@@ -61,6 +89,15 @@ void	safeset_int(int *var, int value, pthread_mutex_t *mutex)
 	pthread_mutex_unlock(mutex);
 }
 
+/**
+ * @brief Checks if the philosopher is alive.
+ *
+ * @param philo Pointer to the philosopher.
+ * @param thread_safe Flag that indicates if the function should lock the
+ * philosopher mutex.
+ *
+ * @return int 1 if the philosopher is alive, 0 otherwise.
+*/
 int	is_alive(t_philo *philo, int thread_safe)
 {
 	t_mstime	time_since_last_meal;

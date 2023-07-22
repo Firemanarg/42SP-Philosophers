@@ -19,34 +19,24 @@
 # include <unistd.h>
 # include <sys/time.h>
 
-# define RUNNING 1
-# define STOPPED 0
 # define TRUE 1
 # define FALSE 0
 
 /**
- * Steps of simulation:
- * 1. Validate arguments
- * 2. Initialize structures
- * 3. Initialize philosophers
- * 4. Check conditions inside loop
- * 5. Finish philosophers
- * 6. Free resources
- * 7. Exit
+ * @brief Type used to store time in milliseconds.
 */
+typedef long long	t_mstime;
 
 /**
- * Organization of the project - Categories grouped by steps:
- * 1. Validation
- * 2. Initialization
- * 3. Simulation
- * 4. Cleaning
+ * @brief Structure used to store the arguments.
+ *
+ * @param philos_count Number of philosophers.
+ * @param time_to_die Time in milliseconds until a philosopher dies.
+ * @param time_to_eat Time in milliseconds that a philosopher takes to eat.
+ * @param time_to_sleep Time in milliseconds that a philosopher takes to sleep.
+ * @param min_meals Minimum number of meals that each philosopher must eat.
+ * @param out_mutex Mutex used to print messages.
 */
-
-typedef long long	t_mstime;
-// typedef struct		s_philo t_philo;
-// typedef struct		s_args t_args;
-
 typedef struct s_args
 {
 	int				philos_count;
@@ -57,6 +47,22 @@ typedef struct s_args
 	pthread_mutex_t	out_mutex;
 }	t_args;
 
+/**
+ * @brief Structure used to store the philosopher.
+ *
+ * @param id ID of the philosopher.
+ * @param thread Thread of the philosopher.
+ * @param mutex Mutex used to lock the philosopher.
+ * @param is_alive Flag that indicates if the philosopher is alive.
+ * @param has_ate_enough Flag that indicates if the philosopher has
+ * eaten enough.
+ * @param can_run Flag that indicates if the philosopher can run.
+ * @param last_meal Time in milliseconds of the last meal.
+ * @param left_fork Pointer to the left fork.
+ * @param right_fork Pointer to the right fork.
+ * @param meals Number of meals that the philosopher has eaten.
+ * @param args Pointer to the arguments.
+*/
 typedef struct s_philo
 {
 	int				id;
@@ -72,6 +78,17 @@ typedef struct s_philo
 	t_args			*args;
 }	t_philo;
 
+/**
+ * @brief Structure used to store the Philo King.
+ *
+ * @param thread Thread of the Philo King.
+ * @param completed_meals_count Number of meals that all philosophers have
+ * eaten.
+ * @param is_any_philo_dead Flag that indicates if any philosopher is dead.
+ * @param args Pointer to the arguments.
+ * @param philos Pointer to the philosophers.
+ * @param forks Pointer to the forks.
+*/
 typedef struct s_philo_king
 {
 	pthread_t		thread;
@@ -97,7 +114,7 @@ void				print(t_philo *philo, char *msg);
 long long			ft_atoll(const char *str);
 
 // utils_2.c
-t_mstime			curr_time();
+t_mstime			curr_time(void);
 int					action_timed_loop(t_philo *philo, t_mstime max_time);
 int					safeget_int(int *var, pthread_mutex_t *mutex);
 void				safeset_int(int *var, int value, pthread_mutex_t *mutex);

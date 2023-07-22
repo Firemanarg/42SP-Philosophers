@@ -32,6 +32,13 @@ int	main(int argc, char **argv)
 	clean_all(&king);
 }
 
+/**
+ * @brief Initializes the arguments.
+ *
+ * @param args Pointer to the arguments.
+ * @param argc Number of arguments.
+ * @param argv Array of arguments.
+*/
 static void	init_args(t_args *args, int argc, char **argv)
 {
 	args->philos_count = (int) ft_atoll(argv[1]);
@@ -45,6 +52,11 @@ static void	init_args(t_args *args, int argc, char **argv)
 	pthread_mutex_init(&args->out_mutex, NULL);
 }
 
+/**
+ * @brief Starts the simulation.
+ *
+ * @param king Pointer to the Philo King.
+*/
 static void	start_simulation(t_philo_king *king)
 {
 	int	i;
@@ -60,6 +72,11 @@ static void	start_simulation(t_philo_king *king)
 	}
 }
 
+/**
+ * @brief Cleans all the resources used by the simulation.
+ *
+ * @param king Pointer to the Philo King.
+*/
 static void	clean_all(t_philo_king *king)
 {
 	int	i;
