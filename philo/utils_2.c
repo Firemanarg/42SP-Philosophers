@@ -77,18 +77,3 @@ int	is_alive(t_philo *philo, int thread_safe)
 		pthread_mutex_unlock(&philo->mutex);
 	return (time_since_last_meal < philo->args->time_to_die);
 }
-
-// int	check_n_kill_philo(t_philo_king *king, t_philo *philo)
-// {
-// 	if (safeget_int(&philo->has_ate_enough, &philo->mutex))
-// 		return (0);
-// 	if (action_timed_loop(philo, philo->args->time_to_die))
-// 	{
-// 		print(philo, "died");
-// 		safeset_int(&philo->is_alive, FALSE, &philo->mutex);
-// 		safeset_int(&philo->can_run, FALSE, &philo->mutex);
-// 		safeset_int(&king->is_any_philo_dead, TRUE, &king->args->sync_mutex);
-// 		return (1);
-// 	}
-// 	return (0);
-// }
