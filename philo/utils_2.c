@@ -33,6 +33,8 @@ int	action_timed_loop(t_philo *philo, t_mstime max_time)
 {
 	t_mstime	start_time;
 
+	if (!is_alive(philo, TRUE))
+		return (1);
 	start_time = curr_time(&philo->args->time_mutex);
 	while (curr_time(&philo->args->time_mutex) - start_time < max_time)
 	{
