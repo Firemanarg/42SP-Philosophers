@@ -24,7 +24,7 @@ SRCS				= $(addprefix $(SRCS_DIR)/, $(SRC_FILES))
 OBJS_DIR			= objs
 OBJS				= $(addprefix $(OBJS_DIR)/, $(SRC_FILES:%.c=%.o))
 HEADERS				= philo.h
-SUBDIRS				= utils routines initializers core_utils
+SUBDIRS				=
 INCLUDES			= $(SUBDIRS:%=-I $(SRCS_DIR)/%) -I $(SRCS_DIR)
 
 $(OBJS_DIR)/%.o:	$(SRCS_DIR)/%.c $(HEADERS)
