@@ -69,41 +69,6 @@ void	*philo_king_routine(void *arg)
 	return (NULL);
 }
 
-// int	philo_eat(t_philo *philo)
-// {
-// 	int	min_meals;
-
-// 	if (!safeget_int(&philo->can_run, &philo->mutex) || !is_alive(philo, TRUE))
-// 		return (0);
-// 	pthread_mutex_lock(philo->left_fork);
-// 	pthread_mutex_lock(philo->right_fork);
-// 	if (!safeget_int(&philo->can_run, &philo->mutex) || !is_alive(philo, TRUE))
-// 	{
-// 		pthread_mutex_unlock(philo->left_fork);
-// 		pthread_mutex_unlock(philo->right_fork);
-// 		return (0);
-// 	}
-// 	print(philo, "has taken a fork");
-// 	print(philo, "has taken a fork");
-// 	print(philo, "is eating");
-// 	if (action_timed_loop(philo, philo->args->time_to_eat))
-// 	{
-// 		print(philo, "died");
-// 		pthread_mutex_unlock(philo->left_fork);
-// 		pthread_mutex_unlock(philo->right_fork);
-// 		safeset_int(&philo->is_alive, FALSE, &philo->mutex);
-// 		return (0);
-// 	}
-// 	pthread_mutex_unlock(philo->left_fork);
-// 	pthread_mutex_unlock(philo->right_fork);
-// 	philo->last_meal = curr_time(&philo->args->time_mutex);
-// 	philo->meals += 1;
-// 	min_meals = philo->args->min_meals;
-// 	if ((min_meals != -1) && (philo->meals == min_meals))
-// 		safeset_int(&philo->has_ate_enough, TRUE, &philo->mutex);
-// 	return (1);
-// }
-
 int	philo_eat(t_philo *philo)
 {
 	int	philo_died;
@@ -131,8 +96,6 @@ int	philo_eat(t_philo *philo)
 	safeset_int(&philo->is_alive, FALSE, &philo->mutex);
 	return (0);
 }
-
-
 
 int	philo_sleep(t_philo *philo)
 {
