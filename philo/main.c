@@ -28,8 +28,10 @@ int	main(int argc, char **argv)
 	}
 	init_args(&args, argc, argv);
 	init_philo_king(&king, &args);
+	// printf("%8lld Simulation started!\n", curr_time());
 	start_simulation(&king);
 	clean_all(&king);
+	// printf("%8lld Simulation finished!\n", curr_time());
 }
 
 static void	init_args(t_args *args, int argc, char **argv)
@@ -43,21 +45,22 @@ static void	init_args(t_args *args, int argc, char **argv)
 	else
 		args->min_meals = -1;
 	pthread_mutex_init(&args->out_mutex, NULL);
-	pthread_mutex_init(&args->sync_mutex, NULL);
+	pthread_mutex_init(&args->time_mutex, NULL);
 }
 
 static void	start_simulation(t_philo_king *king)
 {
 	int	i;
 
+	if (king->args->philos_count > 1)
+		pthread_create(&king->thread, NULL, philo_king_routine, king);
 	i = 0;
 	while (i < king->args->philos_count)
 	{
 		pthread_create(&king->philos[i].thread, NULL,
-			philo_routine, &king->philos[i]);
+			philo_routine, king->philos + i);
 		i += 1;
 	}
-	pthread_create(&king->thread, NULL, philo_king_routine, king);
 }
 
 static void	clean_all(t_philo_king *king)
@@ -68,12 +71,17 @@ static void	clean_all(t_philo_king *king)
 	while (i < king->args->philos_count)
 	{
 		pthread_join(king->philos[i].thread, NULL);
+		i += 1;
+	}
+	i = 0;
+	while (i < king->args->philos_count)
+	{
 		pthread_mutex_destroy(king->forks + i);
 		i += 1;
 	}
-	pthread_join(king->thread, NULL);
+	if (king->args->philos_count > 1)
+		pthread_join(king->thread, NULL);
 	pthread_mutex_destroy(&king->args->out_mutex);
-	pthread_mutex_destroy(&king->args->sync_mutex);
 	free(king->philos);
 	free(king->forks);
 }

@@ -16,21 +16,11 @@ void	init_philo(t_philo *philo, int id, t_philo_king *king)
 {
 	int	left_fork_index;
 	int	right_fork_index;
-	int	index;
 
-	right_fork_index = 0;
-	left_fork_index = 0;
-	if (king->args->philos_count > 1)
-	{
-		index = (id) % king->args->philos_count;
-		right_fork_index = id - 1;
-		if (id - 1 < index)
-			right_fork_index = index;
-		left_fork_index = id - 1;
-		if (id - 1 > index)
-			left_fork_index = index;
-	}
-	*philo = (t_philo){.id = id, .args = king->args, .last_meal = curr_time(),
+	right_fork_index = id - 1;
+	left_fork_index = id % king->args->philos_count;
+	*philo = (t_philo){.id = id, .args = king->args,
+		.last_meal = curr_time(&king->args->time_mutex),
 		.left_fork = king->forks + left_fork_index,
 		.right_fork = king->forks + right_fork_index,
 		.can_run = TRUE, .is_alive = TRUE, .has_ate_enough = FALSE};
@@ -61,7 +51,7 @@ void	*stop_all_philos(t_philo_king *king)
 	i = 0;
 	while (i < king->args->philos_count)
 	{
-		safeset_int(&king->philos[i].can_run, STOPPED, &king->philos[i].mutex);
+		safeset_int(&king->philos[i].can_run, FALSE, &king->philos[i].mutex);
 		i += 1;
 	}
 	return (NULL);
@@ -69,15 +59,14 @@ void	*stop_all_philos(t_philo_king *king)
 
 void	print(t_philo *philo, char *msg)
 {
-	int	run_state;
+	t_mstime	time;
 
-	run_state = safeget_int(&philo->can_run, &philo->args->sync_mutex);
-	if (run_state == RUNNING)
-	{
-		pthread_mutex_lock(&philo->args->out_mutex);
-		printf("%8lld %d %s\n", curr_time(), philo->id, msg);
-		pthread_mutex_unlock(&philo->args->out_mutex);
-	}
+	if (!safeget_int(&philo->can_run, &philo->mutex))
+		return ;
+	time = curr_time(&philo->args->time_mutex);
+	pthread_mutex_lock(&philo->args->out_mutex);
+	printf("%lld %d %s\n", time, philo->id, msg);
+	pthread_mutex_unlock(&philo->args->out_mutex);
 }
 
 long long	ft_atoll(const char *str)

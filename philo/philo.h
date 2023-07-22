@@ -43,7 +43,7 @@
  * 4. Cleaning
 */
 
-// typedef long long	t_mstime;
+typedef long long	t_mstime;
 // typedef struct		s_philo t_philo;
 // typedef struct		s_args t_args;
 
@@ -55,7 +55,7 @@ typedef struct s_args
 	t_mstime		time_to_sleep;
 	int				min_meals;
 	pthread_mutex_t	out_mutex;
-	pthread_mutex_t	sync_mutex;
+	pthread_mutex_t	time_mutex;
 }	t_args;
 
 typedef struct s_philo
@@ -86,9 +86,9 @@ typedef struct s_philo_king
 // simulation.c
 void				*philo_routine(void *arg);
 void				*philo_king_routine(void *arg);
-void				philo_think(t_philo *philo);
-void				philo_eat(t_philo *philo);
-void				philo_sleep(t_philo *philo);
+int					philo_think(t_philo *philo);
+int					philo_eat(t_philo *philo);
+int					philo_sleep(t_philo *philo);
 
 // utils_1.c
 void				init_philo(t_philo *philo, int id, t_philo_king *king);
@@ -98,9 +98,10 @@ void				print(t_philo *philo, char *msg);
 long long			ft_atoll(const char *str);
 
 // utils_2.c
-t_mstime			curr_time(void);
+t_mstime			curr_time(pthread_mutex_t *time_mutex);
 int					action_timed_loop(t_philo *philo, t_mstime max_time);
 int					safeget_int(int *var, pthread_mutex_t *mutex);
 void				safeset_int(int *var, int value, pthread_mutex_t *mutex);
+int					is_alive(t_philo *philo, int thread_safe);
 
 #endif

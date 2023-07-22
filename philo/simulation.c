@@ -23,16 +23,19 @@ void	*philo_routine(void *arg)
 		usleep(philo->args->time_to_die * 1000);
 		print(philo, "died");
 		safeset_int(&philo->is_alive, FALSE, &philo->mutex);
+		safeset_int(&philo->can_run, FALSE, &philo->mutex);
 	}
+	if (philo->id % 2 == 0)
+		usleep(1000);
 	while (safeget_int(&philo->can_run, &philo->mutex))
 	{
-		if (safeget_int(&philo->is_alive, &philo->mutex))
-		{
-			philo_eat(philo);
-			philo_sleep(philo);
-			philo_think(philo);
-		}
-		usleep(100);
+		if (!philo_eat(philo))
+			break ;
+		if (!philo_sleep(philo))
+			break ;
+		if (!philo_think(philo))
+			break ;
+		usleep(50);
 	}
 	return (NULL);
 }
@@ -43,7 +46,6 @@ void	*philo_king_routine(void *arg)
 	t_philo			*philo;
 	int				i;
 
-	printf("philo_king_routine\n");
 	king = (t_philo_king *) arg;
 	while (TRUE)
 	{
@@ -53,59 +55,73 @@ void	*philo_king_routine(void *arg)
 		while (i < king->args->philos_count)
 		{
 			philo = king->philos + i;
-			if (!philo->is_alive)
+			if (!safeget_int(&philo->is_alive, &philo->mutex))
 				king->is_any_philo_dead = TRUE;
-			if (philo->has_ate_enough)
+			if (safeget_int(&philo->has_ate_enough, &philo->mutex))
 				king->completed_meals_count += 1;
+			i += 1;
 		}
 		if (king->is_any_philo_dead
 			|| king->completed_meals_count == king->args->philos_count)
 			return (stop_all_philos(king));
-		usleep(100);
+		usleep(50);
 	}
+	return (NULL);
 }
 
-void	philo_eat(t_philo *philo)
+int	philo_eat(t_philo *philo)
 {
 	int	min_meals;
 
-	if (safeget_int(&philo->can_run, &philo->mutex))
+	if (!safeget_int(&philo->can_run, &philo->mutex) || !is_alive(philo, TRUE))
+		return (0);
+	pthread_mutex_lock(philo->left_fork);
+	pthread_mutex_lock(philo->right_fork);
+	if (!safeget_int(&philo->can_run, &philo->mutex) || !is_alive(philo, TRUE))
 	{
-		pthread_mutex_lock(philo->left_fork);
-		pthread_mutex_lock(philo->right_fork);
-		print(philo, "has taken a fork");
-		print(philo, "has taken a fork");
-		print(philo, "is eating");
-		if (action_timed_loop(philo, philo->args->time_to_eat))
-		{
-			print(philo, "died");
-			safeset_int(&philo->is_alive, FALSE, &philo->mutex);
-		}
 		pthread_mutex_unlock(philo->left_fork);
 		pthread_mutex_unlock(philo->right_fork);
-		philo->last_meal = curr_time();
-		philo->meals += 1;
-		min_meals = philo->args->min_meals;
-		if ((min_meals != -1) && (philo->meals == min_meals))
-			philo->has_ate_enough = TRUE;
+		return (0);
 	}
-}
-
-void	philo_sleep(t_philo *philo)
-{
-	if (safeget_int(&philo->can_run, &philo->mutex))
+	print(philo, "has taken a fork");
+	print(philo, "has taken a fork");
+	print(philo, "is eating");
+	if (action_timed_loop(philo, philo->args->time_to_eat))
 	{
-		print(philo, "is sleeping");
-		if (action_timed_loop(philo, philo->args->time_to_sleep))
-		{
-			print(philo, "died");
-			safeset_int(&philo->is_alive, FALSE, &philo->mutex);
-		}
+		print(philo, "died");
+		pthread_mutex_unlock(philo->left_fork);
+		pthread_mutex_unlock(philo->right_fork);
+		safeset_int(&philo->is_alive, FALSE, &philo->mutex);
+		return (0);
 	}
+	pthread_mutex_unlock(philo->left_fork);
+	pthread_mutex_unlock(philo->right_fork);
+	philo->last_meal = curr_time(&philo->args->time_mutex);
+	philo->meals += 1;
+	min_meals = philo->args->min_meals;
+	if ((min_meals != -1) && (philo->meals == min_meals))
+		safeset_int(&philo->has_ate_enough, TRUE, &philo->mutex);
+	return (1);
 }
 
-void	philo_think(t_philo *philo)
+int	philo_sleep(t_philo *philo)
 {
-	if (safeget_int(&philo->can_run, &philo->mutex))
-		print(philo, "is thinking");
+	if (!safeget_int(&philo->can_run, &philo->mutex) || !is_alive(philo, TRUE))
+		return (0);
+	print(philo, "is sleeping");
+	if (action_timed_loop(philo, philo->args->time_to_sleep))
+	{
+		print(philo, "died");
+		safeset_int(&philo->is_alive, FALSE, &philo->mutex);
+		return (0);
+	}
+	return (1);
+}
+
+int	philo_think(t_philo *philo)
+{
+	if (!safeget_int(&philo->can_run, &philo->mutex) || !is_alive(philo, TRUE))
+		return (0);
+	print(philo, "is thinking");
+	return (1);
 }
