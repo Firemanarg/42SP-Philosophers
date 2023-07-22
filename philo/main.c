@@ -28,10 +28,8 @@ int	main(int argc, char **argv)
 	}
 	init_args(&args, argc, argv);
 	init_philo_king(&king, &args);
-	// printf("%8lld Simulation started!\n", curr_time());
 	start_simulation(&king);
 	clean_all(&king);
-	// printf("%8lld Simulation finished!\n", curr_time());
 }
 
 static void	init_args(t_args *args, int argc, char **argv)
