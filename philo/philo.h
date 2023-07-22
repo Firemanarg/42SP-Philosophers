@@ -55,7 +55,6 @@ typedef struct s_args
 	t_mstime		time_to_sleep;
 	int				min_meals;
 	pthread_mutex_t	out_mutex;
-	pthread_mutex_t	time_mutex;
 }	t_args;
 
 typedef struct s_philo
@@ -98,7 +97,7 @@ void				print(t_philo *philo, char *msg);
 long long			ft_atoll(const char *str);
 
 // utils_2.c
-t_mstime			curr_time(pthread_mutex_t *time_mutex);
+t_mstime			curr_time();
 int					action_timed_loop(t_philo *philo, t_mstime max_time);
 int					safeget_int(int *var, pthread_mutex_t *mutex);
 void				safeset_int(int *var, int value, pthread_mutex_t *mutex);

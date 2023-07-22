@@ -43,7 +43,6 @@ static void	init_args(t_args *args, int argc, char **argv)
 	else
 		args->min_meals = -1;
 	pthread_mutex_init(&args->out_mutex, NULL);
-	pthread_mutex_init(&args->time_mutex, NULL);
 }
 
 static void	start_simulation(t_philo_king *king)

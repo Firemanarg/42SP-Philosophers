@@ -86,7 +86,7 @@ int	philo_eat(t_philo *philo)
 	philo_died = action_timed_loop(philo, philo->args->time_to_eat);
 	pthread_mutex_unlock(philo->left_fork);
 	pthread_mutex_unlock(philo->right_fork);
-	philo->last_meal = curr_time(&philo->args->time_mutex);
+	philo->last_meal = curr_time();
 	philo->meals += 1;
 	safeset_int(&philo->has_ate_enough, philo->meals == philo->args->min_meals,
 		&philo->mutex);

@@ -20,7 +20,7 @@ void	init_philo(t_philo *philo, int id, t_philo_king *king)
 	right_fork_index = id - 1;
 	left_fork_index = id % king->args->philos_count;
 	*philo = (t_philo){.id = id, .args = king->args,
-		.last_meal = curr_time(&king->args->time_mutex),
+		.last_meal = curr_time(),
 		.left_fork = king->forks + left_fork_index,
 		.right_fork = king->forks + right_fork_index,
 		.can_run = TRUE, .is_alive = TRUE, .has_ate_enough = FALSE};
@@ -63,7 +63,7 @@ void	print(t_philo *philo, char *msg)
 
 	if (!safeget_int(&philo->can_run, &philo->mutex))
 		return ;
-	time = curr_time(&philo->args->time_mutex);
+	time = curr_time();
 	pthread_mutex_lock(&philo->args->out_mutex);
 	printf("%lld %d %s\n", time, philo->id, msg);
 	pthread_mutex_unlock(&philo->args->out_mutex);
